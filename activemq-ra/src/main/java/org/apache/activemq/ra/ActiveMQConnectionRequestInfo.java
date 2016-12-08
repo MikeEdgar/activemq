@@ -39,6 +39,7 @@ public class ActiveMQConnectionRequestInfo implements ConnectionRequestInfo, Ser
     private String password;
     private String serverUrl;
     private String clientid;
+    private String durableClientIdPrefix;
     private Boolean useInboundSession;
     private RedeliveryPolicy redeliveryPolicy;
     private ActiveMQPrefetchPolicy prefetchPolicy;
@@ -228,6 +229,14 @@ public class ActiveMQConnectionRequestInfo implements ConnectionRequestInfo, Ser
         this.clientid = clientid;
     }
 
+    public String getDurableClientIdPrefix() {
+        return durableClientIdPrefix;
+    }
+
+    public void setDurableClientIdPrefix(String durableClientIdPrefix) {
+        this.durableClientIdPrefix = durableClientIdPrefix;
+    }
+
     public String getTrustStore() {
         return trustStore;
     }
@@ -271,7 +280,7 @@ public class ActiveMQConnectionRequestInfo implements ConnectionRequestInfo, Ser
     @Override
     public String toString() {
         return new StringBuffer("ActiveMQConnectionRequestInfo{ userName = '").append(userName).append("' ").append(", serverUrl = '").append(serverUrl)
-            .append("' ").append(", clientid = '").append(clientid).append("' ").append(", userName = '").append(userName).append("' ")
+            .append("' ").append(", clientid = '").append(clientid).append("' ").append(", durableClientIdPrefix = '").append(durableClientIdPrefix).append("' ").append(", userName = '").append(userName).append("' ")
             .append(", useSessionArgs = '").append(useSessionArgs).append("' ").append(", useInboundSession = '").append(useInboundSession).append("'  }")
             .toString();
     }

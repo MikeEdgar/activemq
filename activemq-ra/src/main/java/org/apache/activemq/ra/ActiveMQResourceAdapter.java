@@ -129,31 +129,37 @@ public class ActiveMQResourceAdapter extends ActiveMQConnectionSupport implement
         }
         String userName = defaultValue(activationSpec.getUserName(), getInfo().getUserName());
         String password = defaultValue(activationSpec.getPassword(), getInfo().getPassword());
-        String clientId;
+        String clientId = null;
 
         if (activationSpec.isDefaultClientId()) {
-            final String connectionClientId = getInfo().getClientid();
-            if (connectionClientId != null && connectionClientId.trim().length() > 0) {
-                if (activationSpec.isDurableSubscription()) {
-                    log.warn("Using default clientID '{}' from connection for durable subscription: {}", connectionClientId, activationSpec);
-                }
+            if (activationSpec.isDurableSubscription()) {
+                final String clientIdPrefix = getInfo().getDurableClientIdPrefix();
 
-                clientId = connectionClientId;
-            } else {
-                clientId = null;
+                if (clientIdPrefix != null && clientIdPrefix.trim().length() > 0) {
+                    if (activationSpec.isUseJndi()) {
+                        clientId = clientIdPrefix + "->" + activationSpec.getDestination().hashCode();
+                    } else {
+                        clientId = clientIdPrefix + "->" + activationSpec.getDestination();
+                    }
+
+                    log.info("Generated clientID '{}' from DurableClientIdPrefix->destination for durable subscription: {}", clientId, activationSpec);
+                } else {
+                    log.warn("Unable to generate clientID for durable subscription when not specified for resource adapter: {}", activationSpec);
+                }
             }
         } else {
             clientId = activationSpec.getClientId();
         }
 
+        ActiveMQConnection physicalConnection = (ActiveMQConnection) cf.createConnection(userName, password);
+
         if (clientId != null) {
-            cf.setClientID(clientId);
+            physicalConnection.setClientID(clientId);
         } else {
             if (activationSpec.isDurableSubscription()) {
                 log.warn("No clientID specified for durable subscription: " + activationSpec);
             }
         }
-        ActiveMQConnection physicalConnection = (ActiveMQConnection) cf.createConnection(userName, password);
 
         // have we configured a redelivery policy
         RedeliveryPolicy redeliveryPolicy = activationSpec.redeliveryPolicy();

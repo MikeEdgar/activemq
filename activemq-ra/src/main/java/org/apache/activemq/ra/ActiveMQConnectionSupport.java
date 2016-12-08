@@ -159,6 +159,24 @@ public class ActiveMQConnectionSupport {
         info.setClientid(clientid);
     }
 
+
+    /**
+     * @return durable client id prefix
+     */
+    public String getDurableClientIdPrefix() {
+        return emptyToNull(info.getDurableClientIdPrefix());
+    }
+
+    /**
+     * @param durable client id prefix
+     */
+    public void setDurableClientIdPrefix(String durableClientIdPrefix) {
+        if (log.isDebugEnabled()) {
+            log.debug(this + ", setting [durableClientIdPrefix] to: " + durableClientIdPrefix);
+        }
+        info.setDurableClientIdPrefix(durableClientIdPrefix);
+    }
+
     /**
      * @return password
      */
