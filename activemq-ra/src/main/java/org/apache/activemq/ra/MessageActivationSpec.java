@@ -24,7 +24,7 @@ import javax.resource.spi.ActivationSpec;
 import java.util.List;
 
 /**
- * 
+ *
  */
 public interface MessageActivationSpec extends ActivationSpec {
     boolean isValidUseRAManagedTransaction(List<String> errorMessages);
@@ -68,6 +68,8 @@ public interface MessageActivationSpec extends ActivationSpec {
     String getAcknowledgeMode();
 
     String getClientId();
+
+    boolean isDefaultClientId();
 
     String getDestination();
 
@@ -116,7 +118,7 @@ public interface MessageActivationSpec extends ActivationSpec {
     String getMaxMessagesPerBatch();
 
     double getBackOffMultiplier();
-    
+
     long getMaximumRedeliveryDelay();
 
     long getInitialRedeliveryDelay();

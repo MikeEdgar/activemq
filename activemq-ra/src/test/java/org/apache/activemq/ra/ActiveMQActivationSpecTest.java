@@ -261,6 +261,16 @@ public class ActiveMQActivationSpecTest {
     }
 
     @Test(timeout = 60000)
+    public void testDurableSubscriberDefaultClientId() {
+        activationSpec.setDestinationType(Topic.class.getName());
+        activationSpec.setSubscriptionDurability(ActiveMQActivationSpec.DURABLE_SUBSCRIPTION);
+        assertTrue(activationSpec.isDefaultClientId());
+        activationSpec.setSubscriptionName("foobar");
+        assertActivationSpecValid();
+        assertTrue(activationSpec.isDurableSubscription());
+    }
+
+    @Test(timeout = 60000)
     public void testSetEmptyStringButGetNullValue() {
         ActiveMQActivationSpec activationSpec = new ActiveMQActivationSpec();
 

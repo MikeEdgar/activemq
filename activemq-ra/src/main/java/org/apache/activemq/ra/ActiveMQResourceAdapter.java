@@ -129,7 +129,23 @@ public class ActiveMQResourceAdapter extends ActiveMQConnectionSupport implement
         }
         String userName = defaultValue(activationSpec.getUserName(), getInfo().getUserName());
         String password = defaultValue(activationSpec.getPassword(), getInfo().getPassword());
-        String clientId = activationSpec.getClientId();
+        String clientId;
+
+        if (activationSpec.isDefaultClientId()) {
+            final String connectionClientId = getInfo().getClientid();
+            if (connectionClientId != null && connectionClientId.trim().length() > 0) {
+                if (activationSpec.isDurableSubscription()) {
+                    log.warn("Using default clientID '{}' from connection for durable subscription: {}", connectionClientId, activationSpec);
+                }
+
+                clientId = connectionClientId;
+            } else {
+                clientId = null;
+            }
+        } else {
+            clientId = activationSpec.getClientId();
+        }
+
         if (clientId != null) {
             cf.setClientID(clientId);
         } else {

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -38,7 +39,7 @@ import org.apache.activemq.selector.SelectorParser;
 
 /**
  * Configures the inbound JMS consumer specification using ActiveMQ
- * 
+ *
  * @org.apache.xbean.XBean element="activationSpec"
  *  $Date: 2007-08-11 17:29:21 -0400 (Sat, 11 Aug
  *          2007) $
@@ -57,6 +58,8 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
 
     private static final long serialVersionUID = -7153087544100459975L;
 
+    private final String defaultClientId = UUID.randomUUID().toString();
+
     private transient MessageResourceAdapter resourceAdapter;
     private String destinationType;
     private String messageSelector;
@@ -64,7 +67,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     private String acknowledgeMode = AUTO_ACKNOWLEDGE_MODE;
     private String userName;
     private String password;
-    private String clientId;
+    private String clientId = defaultClientId;
     private String subscriptionName;
     private String subscriptionDurability = NON_DURABLE_SUBSCRIPTION;
     private String noLocal = "false";
@@ -272,7 +275,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setPassword(String password) {
         this.password = password;
@@ -286,7 +289,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setUserName(String userName) {
         this.userName = userName;
@@ -327,21 +330,25 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setAcknowledgeMode(String acknowledgeMode) {
         this.acknowledgeMode = acknowledgeMode;
     }
 
     public String getClientId() {
-        if (!isEmpty(clientId)) {
+        if (!isEmpty(clientId) && !isDefaultClientId()) {
             return clientId;
         }
         return null;
     }
 
+    public boolean isDefaultClientId() {
+        return defaultClientId.equals(clientId);
+    }
+
     /**
-     * 
+     *
      */
     public void setClientId(String clientId) {
         this.clientId = clientId;
@@ -355,7 +362,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setDestination(String destination) {
         this.destination = destination;
@@ -369,7 +376,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setSubscriptionDurability(String subscriptionDurability) {
         this.subscriptionDurability = subscriptionDurability;
@@ -383,7 +390,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setSubscriptionName(String subscriptionName) {
         this.subscriptionName = subscriptionName;
@@ -398,7 +405,8 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     public boolean isValidClientId(List<String> errorMessages) {
-        if (!isDurableSubscription() ? true : clientId != null && clientId.trim().length() > 0) {
+        // Consider all non-empty clientId values as valid, including "default" value;
+        if (!isDurableSubscription() ? true : !isEmpty(clientId)) {
             return true;
         }
         errorMessages.add("clientId must be set since durable subscription was requested.");
@@ -452,12 +460,12 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     @Override
     public String toString() {
         return "ActiveMQActivationSpec{" + "acknowledgeMode='" + acknowledgeMode + "'" + ", destinationType='" + destinationType + "'" + ", messageSelector='" + messageSelector + "'"
-               + ", destination='" + destination + "'" + ", clientId='" + clientId + "'" + ", subscriptionName='" + subscriptionName + "'" + ", subscriptionDurability='" + subscriptionDurability
+               + ", destination='" + destination + "'" + ", clientId='" + getClientId() + "'" + ", subscriptionName='" + subscriptionName + "'" + ", subscriptionDurability='" + subscriptionDurability
                + "'" + ", useJndi='"+ useJndi + "'" +"}";
     }
 
@@ -486,7 +494,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public ActiveMQDestination createDestination() {
         if (isEmpty(destinationType) || isEmpty(destination)) {
@@ -509,7 +517,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setMaxMessagesPerSessions(String maxMessagesPerSessions) {
         if (maxMessagesPerSessions != null) {
@@ -522,7 +530,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setMaxSessions(String maxSessions) {
         if (maxSessions != null) {
@@ -535,7 +543,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setUseRAManagedTransaction(String useRAManagedTransaction) {
         if (useRAManagedTransaction != null) {
@@ -564,7 +572,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setEnableBatch(String enableBatch) {
         if (enableBatch != null) {
@@ -585,7 +593,7 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setMaxMessagesPerBatch(String maxMessagesPerBatch) {
         if (maxMessagesPerBatch != null) {
@@ -622,25 +630,25 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setBackOffMultiplier(double backOffMultiplier) {
         lazyCreateRedeliveryPolicy().setBackOffMultiplier(backOffMultiplier);
     }
-    
+
     public long getMaximumRedeliveryDelay() {
         if (redeliveryPolicy == null) {
             return 0;
         }
         return redeliveryPolicy.getMaximumRedeliveryDelay();
     }
-    
+
     public void setMaximumRedeliveryDelay(long maximumRedeliveryDelay) {
         lazyCreateRedeliveryPolicy().setMaximumRedeliveryDelay(maximumRedeliveryDelay);
     }
 
     /**
-     * 
+     *
      */
     public void setInitialRedeliveryDelay(long initialRedeliveryDelay) {
         lazyCreateRedeliveryPolicy().setInitialRedeliveryDelay(initialRedeliveryDelay);
@@ -648,14 +656,14 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
     }
 
     /**
-     * 
+     *
      */
     public void setMaximumRedeliveries(int maximumRedeliveries) {
         lazyCreateRedeliveryPolicy().setMaximumRedeliveries(maximumRedeliveries);
     }
 
     /**
-     * 
+     *
      */
     public void setUseExponentialBackOff(boolean useExponentialBackOff) {
         lazyCreateRedeliveryPolicy().setUseExponentialBackOff(useExponentialBackOff);
@@ -672,11 +680,11 @@ public class ActiveMQActivationSpec implements MessageActivationSpec, Serializab
         }
         return redeliveryPolicy;
     }
-    
+
     public void setUseJndi(boolean useJndi) {
         this.useJndi = useJndi;
     }
-    
+
     public boolean isUseJndi() {
         return useJndi;
     }
